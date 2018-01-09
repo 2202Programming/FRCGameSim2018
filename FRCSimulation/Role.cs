@@ -1,4 +1,11 @@
-﻿public enum Role
+﻿namespace FRCSimulation
 {
-    TEAMSWITCH=0,SCALE=1,OPPONENTSWITCH=2,DEFENSE=3,EXCHANGE=4
+    public enum Role
+    {
+        TEAMSWITCH = 0,
+        SCALE = 1,
+        OPPONENTSWITCH = 2,
+        DEFENSE = 3,
+        EXCHANGE = 4
+    }
 }

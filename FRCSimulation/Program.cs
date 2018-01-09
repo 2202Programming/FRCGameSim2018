@@ -12,10 +12,10 @@ namespace FRCSimulation
         {
             Role[] team1 = { Role.OPPONENTSWITCH, Role.EXCHANGE, Role.DEFENSE };
             Role[] team2 = { Role.TEAMSWITCH, Role.EXCHANGE, Role.DEFENSE };
-            SimulateMatch match = new SimulateMatch(team1, team2);
-            MatchResult result = match.AllocatePoints(false);
-            Console.WriteLine(result.team1);
-            Console.WriteLine(result.team2);
+            var match = new SimulateMatch(team1, team2);
+            var result = match.AllocatePoints(false);
+            Console.WriteLine(result.Team1);
+            Console.WriteLine(result.Team2);
             Console.ReadKey();
         }
     }
