@@ -8,6 +8,8 @@ namespace FRCSimulation
 {
     class SimulateMatch
     {
+        private const int NUM_SWITCHES = 3;
+        
         private Role[] team1;
         private Role[] team2;
         private double[] team1Focus;
@@ -20,44 +22,44 @@ namespace FRCSimulation
             this.team1 = team1;
             this.team2 = team2;
             //3 is the number of switches to place blocks on
-            team1Focus = new double[3];
-            team2Focus = new double[3];
+            team1Focus = new double[NUM_SWITCHES];
+            team2Focus = new double[NUM_SWITCHES];
 
             CalcFocusPercentage();
         }
 
         private void CalcFocusPercentage()
         {
-            for (int i = 0; i < team1.Length; i++)
+            foreach (var t in team1)
             {
-                if (team1[i] != Role.DEFENSE && team1[i] != Role.EXCHANGE)
-                team1Focus[(int)team1[i]]++;
+                if (t != Role.DEFENSE && t != Role.EXCHANGE)
+                    team1Focus[(int)t]++;
 
-                if(team1[i] == Role.EXCHANGE)
+                if(t == Role.EXCHANGE)
                 {
                     team1Vault = 9;
                 }
             }
 
-            for (int i = 0; i < team2.Length; i++)
+            foreach (var t in team2)
             {
-                if (team2[i] != Role.DEFENSE && team2[i] != Role.EXCHANGE)
-                    team2Focus[(int)team2[i]]++;
+                if (t != Role.DEFENSE && t != Role.EXCHANGE)
+                    team2Focus[(int)t]++;
 
-                if(team2[i] == Role.DEFENSE)
+                switch (t)
                 {
-                    team1Focus[1] *= Constants.DEFENSEMULT;
-                }
-
-                if(team2[i] == Role.EXCHANGE)
-                {
-                    team2Vault = 9;
+                    case Role.DEFENSE:
+                        team1Focus[1] *= Constants.DEFENSEMULT;
+                        break;
+                    case Role.EXCHANGE:
+                        team2Vault = 9;
+                        break;
                 }
             }
 
-            for (int i = 0; i < team1.Length; i++)
+            foreach (var t in team1)
             {
-                if(team1[i] == Role.DEFENSE)
+                if(t == Role.DEFENSE)
                 {
                     team2Focus[1] *= Constants.DEFENSEMULT;
                 }
@@ -68,12 +70,12 @@ namespace FRCSimulation
         //It is assumed that each team will capture their own switch first
         public MatchResult AllocatePoints(bool scaleCapture)
         {
-            int team1Points = 0;
-            int team2Points = 0;
+            var team1Points = 0;
+            var team2Points = 0;
 
             team1Points += team1Vault * 5;
             team2Points += team2Vault * 5;
-
+            
             if (team1Focus[0] != 0 || team2Focus[0] != 0)
             {
                 if (team1Focus[0] > team2Focus[0])
@@ -122,10 +124,11 @@ namespace FRCSimulation
                 }
             }
 
-            MatchResult result = new MatchResult();
-            result.team1 = team1Points;
-            result.team2 = team2Points;
-            return result;
+            return new MatchResult
+            {
+                Team1 = team1Points,
+                Team2 = team2Points
+            };
         }
     }
 }
