@@ -8,59 +8,78 @@ namespace FRCSimulation
 {
     class SimulateMatch
     {
-        private Role[] team1;
-        private Role[] team2;
-        private double[] team1Focus;
-        private double[] team2Focus;
+        private RobotTask[][] teams;
+        private double[][] teamFocus;
         private int team1Vault;
         private int team2Vault;
 
-        public SimulateMatch(Role[] team1, Role[] team2)
+        public SimulateMatch(RobotTask[] team1, RobotTask[] team2)
         {
-            this.team1 = team1;
-            this.team2 = team2;
+            teams = new RobotTask[2][];
+            teams[0] = team1;
+            teams[1] = team2;
             //3 is the number of switches to place blocks on
-            team1Focus = new double[3];
-            team2Focus = new double[3];
+            teamFocus = new double[2][];
+            teamFocus[0] = new double[3];
+            teamFocus[1] = new double[3];
 
             CalcFocusPercentage();
         }
 
         private void CalcFocusPercentage()
         {
-            for (int i = 0; i < team1.Length; i++)
+            //Assign focus for the scale and the two switches also count blocks to the exchange
+            for (int i = 0; i < teams[0].Length; i++)
             {
-                if (team1[i] != Role.DEFENSE && team1[i] != Role.EXCHANGE)
-                team1Focus[(int)team1[i]]++;
+                if (teams[0][i].role != Role.DEFENSE && teams[0][i].role != Role.EXCHANGE)
+                {
+                    UpdateFocus(0, i);
+                }
 
-                if(team1[i] == Role.EXCHANGE)
+                if(teams[0][i].role == Role.EXCHANGE)
                 {
                     team1Vault = 9;
                 }
             }
 
-            for (int i = 0; i < team2.Length; i++)
+            for (int i = 0; i < teams[1].Length; i++)
             {
-                if (team2[i] != Role.DEFENSE && team2[i] != Role.EXCHANGE)
-                    team2Focus[(int)team2[i]]++;
-
-                if(team2[i] == Role.DEFENSE)
+                if (teams[1][i].role != Role.DEFENSE && teams[1][i].role != Role.EXCHANGE)
                 {
-                    team1Focus[1] *= Constants.DEFENSEMULT;
+                    UpdateFocus(1, i);
                 }
 
-                if(team2[i] == Role.EXCHANGE)
+                if(teams[1][i].role == Role.EXCHANGE)
                 {
                     team2Vault = 9;
                 }
             }
 
-            for (int i = 0; i < team1.Length; i++)
+            //Decrease the focus on the scale due to defense
+            for (int i = 0; i < teams[0].Length; i++)
             {
-                if(team1[i] == Role.DEFENSE)
+                if(teams[0][i].role == Role.DEFENSE)
                 {
-                    team2Focus[1] *= Constants.DEFENSEMULT;
+                    teamFocus[1][1] *= Constants.DEFENSEMULT;
                 }
+
+                if (teams[1][i].role == Role.DEFENSE)
+                {
+                    teamFocus[0][1] *= Constants.DEFENSEMULT;
+                }
+            }
+        }
+
+        private void UpdateFocus(int allianceNumber, int teamPosition)
+        {
+            teamFocus[allianceNumber][(int)teams[allianceNumber][teamPosition].role]++;
+            if (teams[allianceNumber][teamPosition].endgame == Endgame.PARK)
+            {
+                teamFocus[allianceNumber][(int)teams[allianceNumber][teamPosition].role] -= Constants.PARKFOCUS;
+            }
+            if (teams[allianceNumber][teamPosition].endgame == Endgame.CLIMB)
+            {
+                teamFocus[allianceNumber][(int)teams[allianceNumber][teamPosition].role] -= Constants.CLIMBFOCUS;
             }
         }
 
@@ -74,24 +93,26 @@ namespace FRCSimulation
             team1Points += team1Vault * 5;
             team2Points += team2Vault * 5;
 
-            if (team1Focus[0] != 0 || team2Focus[0] != 0)
+            //give points for alliance 1's switch
+            if (teamFocus[0][0] != 0 || teamFocus[1][0] != 0)
             {
-                if (team1Focus[0] > team2Focus[0])
+                if (teamFocus[0][0] > teamFocus[1][0])
                 {
                     team1Points += 135;
                 }
                 else
                 {
-                    double percentCapture = team1Focus[0] / (team1Focus[0] + team2Focus[0]);
+                    double percentCapture = teamFocus[0][0] / (teamFocus[0][0] + teamFocus[1][0]);
                     team1Points += (int)Math.Round(135 * percentCapture);
                 }
             }
 
-            if (team1Focus[1] != 0 || team2Focus[1] != 0)
+            //give points for the scale
+            if (teamFocus[0][1] != 0 || teamFocus[1][1] != 0)
             {
-                if ((team1Focus[1] > team2Focus[1] == scaleCapture) && (team1Focus[1] != team2Focus[1]))
+                if ((teamFocus[0][1] > teamFocus[1][1] == scaleCapture) && (teamFocus[0][1] != teamFocus[1][1]))
                 {
-                    if (team1Focus[1] > team2Focus[1])
+                    if (teamFocus[0][1] > teamFocus[1][1])
                     {
                         team1Points += 135;
                     }
@@ -102,23 +123,48 @@ namespace FRCSimulation
                 }
                 else
                 {
-                    double percentCapture = team1Focus[1] / (team1Focus[1] + team2Focus[1]);
+                    double percentCapture = teamFocus[0][1] / (teamFocus[0][1] + teamFocus[1][1]);
                     team1Points += (int)Math.Round(135 * percentCapture);
-                    percentCapture = team2Focus[1] / (team1Focus[1] + team2Focus[1]);
+                    percentCapture = teamFocus[1][1] / (teamFocus[0][1] + teamFocus[1][1]);
                     team2Points += (int)Math.Round(135 * percentCapture);
                 }
             }
 
-            if (team1Focus[2] != 0 || team2Focus[2] != 0)
+            //give points for alliance 2's switch
+            if (teamFocus[0][2] != 0 || teamFocus[1][2] != 0)
             {
-                if (team2Focus[2] > team1Focus[2])
+                if (teamFocus[1][2] > teamFocus[0][2])
                 {
                     team2Points += 135;
                 }
                 else
                 {
-                    double percentCapture = team2Focus[2] / (team1Focus[2] + team2Focus[2]);
+                    double percentCapture = teamFocus[1][2] / (teamFocus[0][2] + teamFocus[1][2]);
                     team2Points += (int)Math.Round(135 * percentCapture);
+                }
+            }
+
+            //give points for endgame activities
+            for(int i = 0; i < teams[0].Length; i++)
+            {
+                switch (teams[0][i].endgame)
+                {
+                    case Endgame.PARK:
+                        team1Points += 5;
+                        break;
+                    case Endgame.CLIMB:
+                        team1Points += 30;
+                        break;
+                }
+
+                switch (teams[1][i].endgame)
+                {
+                    case Endgame.PARK:
+                        team2Points += 5;
+                        break;
+                    case Endgame.CLIMB:
+                        team2Points += 30;
+                        break;
                 }
             }
 
