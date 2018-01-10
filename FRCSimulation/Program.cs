@@ -20,8 +20,8 @@ namespace FRCSimulation
                 new RobotTask(Role.SCALE, Endgame.NOTHING)
             };
 
-            SimulateMatch match = new SimulateMatch(team1, team2);
-            MatchResult result = match.AllocatePoints(true);
+            var match = new SimulateMatch(team1, team2);
+            var result = match.AllocatePoints(true);
             Console.WriteLine(result.team1);
             Console.WriteLine(result.team2);
             Console.ReadKey();

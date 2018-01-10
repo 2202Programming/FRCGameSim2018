@@ -168,10 +168,11 @@ namespace FRCSimulation
                 }
             }
 
-            MatchResult result = new MatchResult();
-            result.team1 = team1Points;
-            result.team2 = team2Points;
-            return result;
+            return new MatchResult
+            {
+                team1 = team1Points,
+                team2 = team2Points
+            };
         }
     }
 }

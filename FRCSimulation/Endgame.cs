@@ -8,6 +8,8 @@ namespace FRCSimulation
 {
     public enum Endgame
     {
-        NOTHING=0,PARK=1,CLIMB=2
+        NOTHING=0,
+        PARK =1,
+        CLIMB =2
     }
 }
