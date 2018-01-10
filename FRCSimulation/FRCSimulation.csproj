@@ -43,7 +43,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="Endgame.cs" />
     <Compile Include="MatchResult.cs" />
+    <Compile Include="RobotTask.cs" />
     <Compile Include="Role.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

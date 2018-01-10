@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace FRCSimulation
 {
-    class Constants
+    public enum Endgame
     {
-        public const double DEFENSEMULT = 0.5;
-        public const double CLIMBFOCUS = 0.22;
-        public const double PARKFOCUS = 0.11;
+        NOTHING=0,
+        PARK =1,
+        CLIMB =2
     }
 }
